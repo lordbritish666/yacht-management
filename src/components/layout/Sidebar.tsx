@@ -11,7 +11,6 @@ import {
   LogOut,
   Ship,
 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { UserRole } from '@/types'
 
@@ -37,9 +36,10 @@ const roleLabels: Record<UserRole, string> = {
 export function Sidebar({ role, fullName }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSignOut = async () => {
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/login')
   }

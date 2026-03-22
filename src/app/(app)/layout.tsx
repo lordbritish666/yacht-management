@@ -15,11 +15,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq('id', user.id)
     .single()
 
-  if (!profile) redirect('/login')
+  // If profile is missing, auto-create it rather than causing a redirect loop
+  let resolvedProfile = profile
+  if (!resolvedProfile) {
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .insert({ id: user.id, email: user.email!, full_name: user.email!, role: 'staff' })
+      .select()
+      .single()
+    resolvedProfile = newProfile
+  }
+
+  if (!resolvedProfile) redirect('/login')
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar role={profile.role as UserRole} fullName={profile.full_name} />
+      <Sidebar role={resolvedProfile.role as UserRole} fullName={resolvedProfile.full_name} />
       <main className="flex-1 overflow-y-auto bg-[#0a0f1e]">
         {children}
       </main>

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { BerthWithStatus, BerthStatus } from '@/types'
 
 const SCALE = 3 // 1 m = 3 px
@@ -189,7 +190,8 @@ function BerthSlot({
     : ''
 
   return (
-    <div
+    <Link
+      href={`/berths/${berth.code}`}
       style={{
         width: w,
         height: h,
@@ -200,12 +202,15 @@ function BerthSlot({
         borderRadius: side === 'left' ? '3px 0 0 3px' : '0 3px 3px 0',
         position: 'relative',
         overflow: 'hidden',
-        cursor: 'default',
+        cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        textDecoration: 'none',
+        transition: 'filter 0.1s',
       }}
       title={`${berth.code} — ${berth.length_m}m × ${berth.width_m}m${vesselTip}`}
+      className="hover:brightness-125"
     >
       {/* Berth number (show when tall enough) */}
       {h >= 14 && !overlay.icon && (
@@ -242,6 +247,6 @@ function BerthSlot({
           transform: 'translateY(-50%)',
         }}
       />
-    </div>
+    </Link>
   )
 }

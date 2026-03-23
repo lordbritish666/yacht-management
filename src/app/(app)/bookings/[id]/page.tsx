@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { BookingStatusBadge } from '@/components/ui/Badge'
 import { MovementBadge } from '@/components/movements/MovementBadge'
+import { MovementSubmitButton } from '@/components/movements/MovementFormButton'
 import { MovementType, BookingStatus } from '@/types'
 import Link from 'next/link'
 import { ArrowLeft, Ship, Anchor, User, Phone, Calendar, FileText } from 'lucide-react'
@@ -244,12 +245,7 @@ function MovementForm({
           className="w-full bg-[#1f2937] border border-[#374151] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500"
         />
       )}
-      <button
-        type="submit"
-        className={`w-full text-white text-sm font-medium py-2 rounded-lg transition-colors ${buttonClass}`}
-      >
-        {label}
-      </button>
+      <MovementSubmitButton label={label} buttonClass={buttonClass} />
     </form>
   )
 }

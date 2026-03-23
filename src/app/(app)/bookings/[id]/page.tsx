@@ -39,7 +39,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
   const canCheckin = booking.status === 'upcoming' && lastMovement?.type !== 'checkin'
   const canLogDeparture = booking.status === 'active' && lastMovement?.type !== 'departure'
   const canLogReturn = booking.status === 'active' && lastMovement?.type === 'departure'
-  const canCheckout = booking.status === 'active'
+  const canCheckout = booking.status === 'active' && lastMovement?.type !== 'departure'
   const canCancel = ['upcoming', 'active'].includes(booking.status) &&
     ['superadmin', 'harbour_master'].includes(profile?.role ?? '')
 

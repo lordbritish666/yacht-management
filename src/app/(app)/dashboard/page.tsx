@@ -204,6 +204,72 @@ export default async function DashboardPage() {
         </div>
         <MarinaMap berths={berthsWithStatus} />
       </div>
+
+      {/* Berth status table */}
+      <div className="bg-[#111827] border border-[#1f2937] rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-[#1f2937]">
+          <h2 className="text-sm font-semibold text-white">Berth Status</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#1f2937]">
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Berth</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Status</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Vessel</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Owner</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Departure</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium text-slate-500">Size</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1f2937]">
+              {berthsWithStatus.map(b => (
+                <tr key={b.id} className="hover:bg-[#1f2937]/50">
+                  <td className="px-4 py-2.5 font-medium text-white">{b.code}</td>
+                  <td className="px-4 py-2.5">
+                    <StatusBadge status={b.status} />
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-300">
+                    {b.current_booking ? (
+                      <a href={`/bookings/${b.current_booking.id}`} className="hover:text-white transition-colors">
+                        {b.current_booking.vessel_name}
+                      </a>
+                    ) : (
+                      <span className="text-slate-600">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-400">
+                    {b.current_booking?.owner_name ?? <span className="text-slate-600">—</span>}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-400">
+                    {b.current_booking
+                      ? new Date(b.current_booking.departure_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                      : <span className="text-slate-600">—</span>}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-500 text-xs">
+                    {b.length_m}m × {b.width_m}m
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    vacant:   { label: 'Vacant',   cls: 'bg-slate-800 text-slate-400 border-slate-700' },
+    reserved: { label: 'Reserved', cls: 'bg-amber-900/40 text-amber-300 border-amber-700/50' },
+    occupied: { label: 'Occupied', cls: 'bg-emerald-900/40 text-emerald-300 border-emerald-700/50' },
+    away:     { label: 'Away',     cls: 'bg-violet-900/40 text-violet-300 border-violet-700/50' },
+  }
+  const s = map[status] ?? map.vacant
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${s.cls}`}>
+      {s.label}
+    </span>
   )
 }

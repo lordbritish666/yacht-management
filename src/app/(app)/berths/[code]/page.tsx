@@ -37,23 +37,20 @@ export default async function BerthDetailPage({ params }: { params: Promise<{ co
 
   if (!berth) notFound()
 
-  // All bookings for this berth, newest first
-  const { data: bookings } = await supabase
-    .from('bookings')
-    .select('*')
-    .eq('berth_id', berth.id)
-    .order('arrival_date', { ascending: false })
-
-  // Determine live status from active/upcoming bookings
   const today = new Date().toISOString().split('T')[0]
-  const { data: activeBooking } = await supabase
-    .from('bookings')
-    .select('*, vessel_movements(*)')
-    .eq('berth_id', berth.id)
-    .in('status', ['active', 'upcoming'])
-    .lte('arrival_date', today)
-    .gte('departure_date', today)
-    .maybeSingle()
+
+  // Fire both queries in parallel
+  const [{ data: bookings }, { data: activeBooking }] = await Promise.all([
+    supabase.from('bookings').select('*')
+      .eq('berth_id', berth.id)
+      .order('arrival_date', { ascending: false }),
+    supabase.from('bookings').select('*, vessel_movements(*)')
+      .eq('berth_id', berth.id)
+      .in('status', ['active', 'upcoming'])
+      .lte('arrival_date', today)
+      .gte('departure_date', today)
+      .maybeSingle(),
+  ])
 
   let liveStatus = 'vacant'
   if (activeBooking) {

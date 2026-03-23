@@ -4,7 +4,7 @@ import { Plus, Search } from 'lucide-react'
 import { BookingStatusBadge } from '@/components/ui/Badge'
 import { Booking } from '@/types'
 
-export const revalidate = 0
+export const revalidate = 30
 
 export default async function BookingsPage({
   searchParams,

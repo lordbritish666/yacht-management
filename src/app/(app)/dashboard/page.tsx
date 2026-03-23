@@ -5,41 +5,34 @@ import { BerthWithStatus, DashboardStats, Booking } from '@/types'
 import Link from 'next/link'
 import { Plus, CalendarClock, CalendarCheck } from 'lucide-react'
 
-export const revalidate = 0
+export const revalidate = 30
 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
   const today = new Date().toISOString().split('T')[0]
 
-  // Fetch berths from Supabase (real UUIDs)
-  const { data: dbBerths } = await supabase
-    .from('berths')
-    .select('*')
-    .eq('is_active', true)
-    .order('code')
-
-  // Fetch active/upcoming bookings for today
-  const { data: activeBookings } = await supabase
-    .from('bookings')
-    .select('*, berth:berths(*), vessel_movements(*)')
-    .in('status', ['active', 'upcoming'])
-    .lte('arrival_date', today)
-    .gte('departure_date', today)
-
-  const { data: todayArrivals } = await supabase
-    .from('bookings')
-    .select('*, berth:berths(*)')
-    .eq('arrival_date', today)
-    .neq('status', 'cancelled')
-    .order('arrival_date')
-
-  const { data: todayDepartures } = await supabase
-    .from('bookings')
-    .select('*, berth:berths(*)')
-    .eq('departure_date', today)
-    .neq('status', 'cancelled')
-    .order('departure_date')
+  // Fire all independent queries in parallel
+  const [
+    { data: dbBerths },
+    { data: activeBookings },
+    { data: todayArrivals },
+    { data: todayDepartures },
+  ] = await Promise.all([
+    supabase.from('berths').select('*').eq('is_active', true).order('code'),
+    supabase.from('bookings').select('*, berth:berths(*), vessel_movements(*)')
+      .in('status', ['active', 'upcoming'])
+      .lte('arrival_date', today)
+      .gte('departure_date', today),
+    supabase.from('bookings').select('*, berth:berths(*)')
+      .eq('arrival_date', today)
+      .neq('status', 'cancelled')
+      .order('arrival_date'),
+    supabase.from('bookings').select('*, berth:berths(*)')
+      .eq('departure_date', today)
+      .neq('status', 'cancelled')
+      .order('departure_date'),
+  ])
 
   // Build berth status map
   const berthStatusMap = new Map<string, { status: string; booking?: Booking }>()

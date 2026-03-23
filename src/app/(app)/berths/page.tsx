@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { MarinaMap } from '@/components/berths/MarinaMap'
 import { BerthWithStatus } from '@/types'
 
-export const revalidate = 0
+export const revalidate = 30
 
 const STYLES: Record<string, { bg: string; border: string; text: string; label: string }> = {
   sailboat: { bg: 'rgba(8,40,80,0.92)',  border: '#2563eb', text: '#93c5fd', label: 'Pier A — Sailboats'   },

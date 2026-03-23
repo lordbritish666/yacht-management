@@ -15,7 +15,7 @@ const ROLE_STYLES: Record<UserRole, string> = {
   staff: 'bg-slate-700 text-slate-300',
 }
 
-export const revalidate = 0
+export const revalidate = 30
 
 export default async function UsersPage() {
   const supabase = await createClient()

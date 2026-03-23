@@ -1,12 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { BERTHS, BERTH_CATEGORY_LABELS } from '@/data/berths'
+import { BERTH_CATEGORY_LABELS } from '@/data/berths'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 export default async function NewBookingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  // Load berths from Supabase (real UUIDs)
+  const { data: berths } = await supabase
+    .from('berths')
+    .select('*')
+    .eq('is_active', true)
+    .order('code')
 
   async function createBooking(formData: FormData) {
     'use server'
@@ -48,11 +55,11 @@ export default async function NewBookingPage() {
   }
 
   // Group berths by category for select
-  const grouped = BERTHS.reduce((acc, b) => {
+  const grouped = (berths ?? []).reduce((acc, b) => {
     if (!acc[b.category]) acc[b.category] = []
     acc[b.category].push(b)
     return acc
-  }, {} as Record<string, typeof BERTHS>)
+  }, {} as Record<string, any[]>)
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
@@ -79,9 +86,9 @@ export default async function NewBookingPage() {
               className="w-full bg-[#1f2937] border border-[#374151] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
             >
               <option value="">Select a berth…</option>
-              {Object.entries(grouped).map(([cat, berths]) => (
+              {Object.entries(grouped).map(([cat, berthList]) => (
                 <optgroup key={cat} label={BERTH_CATEGORY_LABELS[cat]}>
-                  {berths.map(b => (
+                  {(berthList as any[]).map(b => (
                     <option key={b.id} value={b.id}>
                       {b.code} — {b.length_m}m × {b.width_m}m
                     </option>

@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { BerthGrid } from '@/components/berths/BerthGrid'
 import { StatsBar } from '@/components/dashboard/StatsBar'
 import { BerthWithStatus, DashboardStats, Booking } from '@/types'
-import { BERTHS } from '@/data/berths'
 import Link from 'next/link'
 import { Plus, CalendarClock, CalendarCheck } from 'lucide-react'
 
@@ -12,6 +11,13 @@ export default async function DashboardPage() {
   const supabase = await createClient()
 
   const today = new Date().toISOString().split('T')[0]
+
+  // Fetch berths from Supabase (real UUIDs)
+  const { data: dbBerths } = await supabase
+    .from('berths')
+    .select('*')
+    .eq('is_active', true)
+    .order('code')
 
   // Fetch active/upcoming bookings for today
   const { data: activeBookings } = await supabase
@@ -50,7 +56,7 @@ export default async function DashboardPage() {
     berthStatusMap.set(booking.berth_id, { status, booking })
   }
 
-  const berthsWithStatus: BerthWithStatus[] = BERTHS.map(b => {
+  const berthsWithStatus: BerthWithStatus[] = (dbBerths ?? []).map(b => {
     const info = berthStatusMap.get(b.id)
     return {
       ...b,

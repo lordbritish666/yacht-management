@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { BerthGrid } from '@/components/berths/BerthGrid'
+import { MarinaMap } from '@/components/berths/MarinaMap'
 import { StatsBar } from '@/components/dashboard/StatsBar'
 import { BerthWithStatus, DashboardStats, Booking } from '@/types'
 import Link from 'next/link'
@@ -183,10 +183,26 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Berth Grid */}
-      <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-5">
-        <h2 className="text-sm font-semibold text-white mb-5">Live Berth Map</h2>
-        <BerthGrid berths={berthsWithStatus} />
+      {/* Live Marina Map */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-white">Live Berth Map</h2>
+          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <span className="text-white/40 font-black text-[10px]">✕</span> Occupied
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-amber-400 font-black text-[10px]">◆</span> Reserved
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-violet-400 font-black text-[10px]">⇡</span> Away
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-sm bg-slate-600 inline-block" /> Vacant
+            </span>
+          </div>
+        </div>
+        <MarinaMap berths={berthsWithStatus} />
       </div>
     </div>
   )

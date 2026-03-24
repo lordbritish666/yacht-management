@@ -67,7 +67,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -178,9 +178,9 @@ export default async function DashboardPage() {
 
       {/* Live Marina Map */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <h2 className="text-sm font-semibold text-white">Live Berth Map</h2>
-          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500 sm:ml-auto">
             <span className="flex items-center gap-1.5">
               <span className="text-white/40 font-black text-[10px]">✕</span> Occupied
             </span>

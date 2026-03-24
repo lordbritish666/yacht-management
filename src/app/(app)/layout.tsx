@@ -29,11 +29,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!resolvedProfile) redirect('/login')
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar role={resolvedProfile.role as UserRole} fullName={resolvedProfile.full_name} />
-      <main className="flex-1 overflow-y-auto bg-[#0a0f1e]">
-        {children}
-      </main>
-    </div>
+    <Sidebar role={resolvedProfile.role as UserRole} fullName={resolvedProfile.full_name}>
+      {children}
+    </Sidebar>
   )
 }

@@ -20,14 +20,32 @@ export default async function BerthsPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'superadmin') redirect('/dashboard')
 
-  const { data: berths } = await supabase
-    .from('berths')
-    .select('*')
-    .eq('is_active', true)
-    .order('code')
+  const today = new Date().toISOString().split('T')[0]
 
-  // Berths page shows static layout — no live status
-  const berthsWithStatus: BerthWithStatus[] = (berths ?? []).map(b => ({ ...b, status: 'vacant' }))
+  const [{ data: berths }, { data: activeBookings }] = await Promise.all([
+    supabase.from('berths').select('*').eq('is_active', true).order('code'),
+    supabase.from('bookings')
+      .select('*, berth:berths(*), vessel_movements(*)')
+      .in('status', ['active', 'upcoming'])
+      .lte('arrival_date', today)
+      .gte('departure_date', today),
+  ])
+
+  const berthStatusMap = new Map<string, { status: string; booking?: any }>()
+  for (const booking of (activeBookings ?? [])) {
+    const movements: { type: string }[] = booking.vessel_movements ?? []
+    const lastMovement = movements.sort((a: any, b: any) =>
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )[0]
+    let status = booking.status === 'upcoming' ? 'reserved' : 'occupied'
+    if (booking.status === 'active' && lastMovement?.type === 'departure') status = 'away'
+    berthStatusMap.set(booking.berth_id, { status, booking })
+  }
+
+  const berthsWithStatus: BerthWithStatus[] = (berths ?? []).map(b => {
+    const info = berthStatusMap.get(b.id)
+    return { ...b, status: (info?.status ?? 'vacant') as any, current_booking: info?.booking }
+  })
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
